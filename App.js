@@ -1,20 +1,33 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from "react-native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { NavigationContainer } from "@react-navigation/native";
+import { useFonts } from "expo-font";
+
+import Home from "./screens/Home";
+import Details from "./screens/Details";
+
+const Stack = createStackNavigator();
 
 export default function App() {
+  const [loaded] = useFonts({
+    NunitoBold: require("./assets/fonts/Nunito-Bold.ttf"),
+    NunitoSemiBold: require("./assets/fonts/Nunito-SemiBold.ttf"),
+    NunitoMedium: require("./assets/fonts/Nunito-Medium.ttf"),
+    NunitoRegular: require("./assets/fonts/Nunito-Regular.ttf"),
+    NunitoLight: require("./assets/fonts/Nunito-Light.ttf"),
+  });
+
+  if (!loaded) return null;
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{ headerShown: false }}
+        initialRouteName="Home"
+      >
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Details" component={Details} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
