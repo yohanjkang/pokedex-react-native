@@ -28,7 +28,7 @@ const Home = () => {
     else setPokemonData(filteredData);
   };
 
-  const gqlQuery = `query samplePokeAPIquery {
+  const gqlQuery = `query pokeAPIquery {
     pokemon_v2_pokemon {
       name
       id
@@ -87,12 +87,17 @@ const Home = () => {
 
   return (
     <SafeAreaView>
-      <StatusBar />
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle="dark-content"
+      />
       <FlatList
         data={pokemonData}
         renderItem={({ item }) => item.id < 10000 && <ListItem data={item} />}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={<Header onSearch={handleSearch} />}
+        style={{ marginTop: StatusBar.currentHeight }}
       />
     </SafeAreaView>
   );

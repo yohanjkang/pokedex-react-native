@@ -1,5 +1,7 @@
 export const COLORS = {
   font: "#616161",
+  lightFont: "#fff",
+  backgroundDefault: "#fafafa",
   bug: {
     default: "#a5c95b",
     light: "#b8cf8a",
@@ -27,6 +29,7 @@ export const COLORS = {
   fire: {
     default: "#ffaf6e",
     light: "#ffc89c",
+    strong: "rgb(251,166,76)",
   },
   flying: {
     default: "#a2b9e0",
@@ -39,6 +42,7 @@ export const COLORS = {
   grass: {
     default: "#8bc993",
     light: "#abd4b1",
+    strong: "rgb(96,189,88)",
   },
   ground: {
     default: "#e68c5e",
