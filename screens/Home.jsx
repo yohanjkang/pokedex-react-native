@@ -94,7 +94,9 @@ const Home = () => {
       />
       <FlatList
         data={pokemonData}
-        renderItem={({ item }) => item.id < 10000 && <ListItem data={item} />}
+        renderItem={({ item }) =>
+          item.id < 10000 && <ListItem data={item} isDetails={false} />
+        }
         keyExtractor={(item) => item.id}
         ListHeaderComponent={<Header onSearch={handleSearch} />}
         style={{ marginTop: StatusBar.currentHeight }}

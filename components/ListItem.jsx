@@ -1,11 +1,18 @@
-import { StyleSheet, TouchableOpacity, View, Text, Image } from "react-native";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Text,
+  Image,
+  StatusBar,
+} from "react-native";
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
 
 import { COLORS } from "../constants/colors";
 import { ICONS } from "../constants/icons";
 
-const ListItem = ({ data }) => {
+const ListItem = ({ data, isDetails }) => {
   const navigation = useNavigation();
 
   const [primaryObj, secondaryObj] = data.pokemon_v2_pokemontypes;
@@ -14,17 +21,45 @@ const ListItem = ({ data }) => {
     secondaryObj?.pokemon_v2_type.name,
   ];
 
+  const getMainStyle = () => {
+    if (isDetails)
+      return {
+        ...styles.main,
+        borderRadius: 0,
+        paddingTop: StatusBar.currentHeight,
+        margin: 0,
+        backgroundColor: COLORS[primaryType].default,
+      };
+    else {
+      return {
+        ...styles.main,
+        backgroundColor: COLORS[primaryType].default,
+      };
+    }
+  };
+
+  const getImageContainerStyle = () => {
+    if (isDetails)
+      return {
+        ...styles.imageContainer,
+        borderTopRightRadius: 0,
+        borderBottomRightRadius: 0,
+        backgroundColor: COLORS[primaryType].light,
+      };
+    else {
+      return {
+        ...styles.imageContainer,
+        backgroundColor: COLORS[primaryType].light,
+      };
+    }
+  };
+
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate("Details", { data })}
       activeOpacity={0.7}
     >
-      <View
-        style={{
-          ...styles.main,
-          backgroundColor: COLORS[primaryType].default,
-        }}
-      >
+      <View style={getMainStyle()}>
         <View style={{ flex: 1 }}>
           <View style={styles.nameContainer}>
             <Text style={styles.id}>#{("00" + data.id).slice(-3)}</Text>
@@ -65,12 +100,7 @@ const ListItem = ({ data }) => {
             )}
           </View>
         </View>
-        <View
-          style={{
-            ...styles.imageContainer,
-            backgroundColor: COLORS[primaryType].light,
-          }}
-        >
+        <View style={getImageContainerStyle()}>
           <Image
             resizeMode="contain"
             style={styles.image}
@@ -88,14 +118,12 @@ const styles = StyleSheet.create({
   id: {
     margin: 5,
     fontSize: 16,
-    fontFamily: "NunitoBold",
+    fontFamily: "NunitoExtraBold",
     color: COLORS.font,
   },
   image: {
     width: 80,
     height: 80,
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 12,
   },
   imageContainer: {
     width: 100,
@@ -114,7 +142,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderRadius: 12,
-    backgroundColor: "gray",
     paddingLeft: 10,
     margin: 10,
     marginBottom: 0,
@@ -123,7 +150,7 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
     margin: 5,
     fontSize: 16,
-    fontFamily: "NunitoBold",
+    fontFamily: "NunitoExtraBold",
     letterSpacing: 0.5,
     color: COLORS.font,
   },
@@ -146,7 +173,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: "center",
     textTransform: "uppercase",
-    fontFamily: "NunitoRegular",
+    fontFamily: "NunitoMedium",
   },
   typeIcon: {
     width: 30,
