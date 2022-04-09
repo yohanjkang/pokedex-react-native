@@ -23,9 +23,9 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{ headerShown: false }}
-        initialRouteName="Pokémon"
+        initialRouteName="Home"
       >
-        <Stack.Screen name="Pokémon" component={Home} />
+        <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Details" component={Details} />
       </Stack.Navigator>
     </NavigationContainer>

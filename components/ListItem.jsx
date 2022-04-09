@@ -5,6 +5,7 @@ import {
   Text,
   Image,
   StatusBar,
+  Dimensions,
 } from "react-native";
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -22,14 +23,18 @@ const ListItem = ({ data, isDetails }) => {
   ];
 
   const getMainStyle = () => {
+    // Style for details page
     if (isDetails)
       return {
         ...styles.main,
+        width: "100%",
         borderRadius: 0,
         paddingTop: StatusBar.currentHeight,
+        height: 100 + StatusBar.currentHeight,
         margin: 0,
         backgroundColor: COLORS[primaryType].default,
       };
+    // Style for home page
     else {
       return {
         ...styles.main,
@@ -39,6 +44,7 @@ const ListItem = ({ data, isDetails }) => {
   };
 
   const getImageContainerStyle = () => {
+    // Style for details page
     if (isDetails)
       return {
         ...styles.imageContainer,
@@ -46,6 +52,7 @@ const ListItem = ({ data, isDetails }) => {
         borderBottomRightRadius: 0,
         backgroundColor: COLORS[primaryType].light,
       };
+    // Style for home page
     else {
       return {
         ...styles.imageContainer,
@@ -56,19 +63,24 @@ const ListItem = ({ data, isDetails }) => {
 
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate("Details", { data })}
-      activeOpacity={0.7}
+      onPress={() =>
+        isDetails ? "" : navigation.navigate("Details", { data })
+      }
+      activeOpacity={isDetails ? 1 : 0.7}
     >
       <View style={getMainStyle()}>
         <View style={{ flex: 1 }}>
+          {/* ID# + Name + Type Icons */}
           <View style={styles.nameContainer}>
             <Text style={styles.id}>#{("00" + data.id).slice(-3)}</Text>
             <Text style={styles.name}>{data.name}</Text>
+            {/* Primary type icon */}
             <Image
               resizeMode="contain"
               style={{ ...styles.typeIcon, marginLeft: "auto" }}
               source={ICONS[primaryType]}
             />
+            {/* Render secondary type icon if exists */}
             {typeof secondaryType !== "undefined" && (
               <Image
                 resizeMode="contain"
@@ -77,7 +89,10 @@ const ListItem = ({ data, isDetails }) => {
               />
             )}
           </View>
+          {/* END */}
+          {/* Type Names */}
           <View style={styles.typesContainer}>
+            {/* Primary type name */}
             <Text
               style={{
                 ...styles.type,
@@ -87,6 +102,7 @@ const ListItem = ({ data, isDetails }) => {
             >
               {primaryType}
             </Text>
+            {/* Render secondary type name if exists */}
             {typeof secondaryType !== "undefined" && (
               <Text
                 style={{
@@ -99,7 +115,9 @@ const ListItem = ({ data, isDetails }) => {
               </Text>
             )}
           </View>
+          {/* END */}
         </View>
+        {/* Image */}
         <View style={getImageContainerStyle()}>
           <Image
             resizeMode="contain"
@@ -109,6 +127,7 @@ const ListItem = ({ data, isDetails }) => {
             }}
           />
         </View>
+        {/* END */}
       </View>
     </TouchableOpacity>
   );
@@ -145,6 +164,8 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     margin: 10,
     marginBottom: 0,
+    width: Dimensions.get("window").width - 20,
+    height: 100,
   },
   name: {
     textTransform: "capitalize",

@@ -1,5 +1,12 @@
-import { StyleSheet, View, Text, FlatList, ScrollView } from "react-native";
-import React, { useState } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  ScrollView,
+  LogBox,
+} from "react-native";
+import React, { useState, useEffect } from "react";
 
 import { ShadeColor } from "./Utils";
 import { COLORS } from "../constants/colors";
@@ -17,6 +24,10 @@ const DetailsDesc = ({ data }) => {
     secondaryObj?.pokemon_v2_type.name,
   ];
 
+  useEffect(() => {
+    LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
+  }, []);
+
   const setDesc = () => {
     const { flavor_text_entries: descriptions } = pokemonAdditionalData;
     for (let i = descriptions.length - 1; i >= 0; i--) {
@@ -32,14 +43,14 @@ const DetailsDesc = ({ data }) => {
     return <Text>{descriptions[0].flavor_text}</Text>;
   };
 
-  const setStat = (stat, statVal) => {
+  const setStat = ({ stat, base_stat: statVal }) => {
     let statName;
     const maxStat = Math.max.apply(
       Math,
       pokemonData.stats.map((stat) => stat.base_stat)
     );
 
-    switch (stat) {
+    switch (stat.name) {
       case "attack":
         statName = "ATK";
         break;
@@ -61,7 +72,7 @@ const DetailsDesc = ({ data }) => {
     }
 
     return (
-      <View style={{ flexDirection: "row", marginBottom: 6 }}>
+      <View key={stat.id} style={{ flexDirection: "row", marginBottom: 6 }}>
         <Text
           style={{
             ...styles.statName,
@@ -179,14 +190,8 @@ const DetailsDesc = ({ data }) => {
 
       <Text style={styles.contentTitle}>Base Stats</Text>
 
-      <View style={{ ...styles.content, paddingBottom: 4 }}>
-        <FlatList
-          data={pokemonData.stats}
-          renderItem={(item) =>
-            setStat(item.item.stat.name, item.item.base_stat)
-          }
-          keyExtractor={(item, index) => index.toString()}
-        />
+      <View style={{ ...styles.content, paddingBottom: 4, marginBottom: 30 }}>
+        {pokemonData.stats.map((stat) => setStat(stat))}
       </View>
     </ScrollView>
   );

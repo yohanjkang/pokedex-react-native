@@ -1,31 +1,29 @@
-import {
-  StyleSheet,
-  View,
-  Text,
-  SafeAreaView,
-  ScrollView,
-  LogBox,
-} from "react-native";
+import { StyleSheet, View, Text, SafeAreaView } from "react-native";
 import React, { useEffect, useState } from "react";
 import { TabView, TabBar } from "react-native-tab-view";
 
 import DetailsDesc from "../components/DetailsDesc";
 import DetailsEvol from "../components/DetailsEvol";
+import DetailsAtt from "../components/DetailsAtt";
 import ListItem from "../components/ListItem";
 import { ShadeColor } from "../components/Utils";
 import { COLORS } from "../constants/colors";
 
+// Pre-loaded descriptions tab
 const FirstRoute = () => (
   <>
+    <Text style={styles.contentTitle}>Description</Text>
     <View style={{ ...styles.content, alignItems: "center" }}>
       <Text>Loading...</Text>
     </View>
+    <Text style={styles.contentTitle}>Base Stats</Text>
     <View style={{ ...styles.content, alignItems: "center" }}>
       <Text>Loading...</Text>
     </View>
   </>
 );
 
+// Loaded descriptions tab
 const FirstRouteLoaded = ({
   pokemonData,
   pokemonAdditionalData,
@@ -43,6 +41,7 @@ const FirstRouteLoaded = ({
   );
 };
 
+// Evolution chain tab
 const SecondRoute = ({ pokemonData, pokemonAdditionalData, inputData }) => {
   return (
     <DetailsEvol
@@ -55,9 +54,18 @@ const SecondRoute = ({ pokemonData, pokemonAdditionalData, inputData }) => {
   );
 };
 
-const ThirdRoute = () => (
-  <View style={{ flex: 1, backgroundColor: "#273cd7" }} />
-);
+// Type effectiveness tab
+const ThirdRoute = ({ pokemonData, pokemonAdditionalData, inputData }) => {
+  return (
+    <DetailsAtt
+      data={{
+        pokemonData,
+        pokemonAdditionalData,
+        inputData,
+      }}
+    />
+  );
+};
 
 const Details = ({ route, navigation }) => {
   const [inputData, setInputData] = useState(route.params.data);
@@ -65,12 +73,14 @@ const Details = ({ route, navigation }) => {
   const [pokemonAdditionalData, setPokemonAdditionalData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Pokemon type info
   const [primaryObj, secondaryObj] = inputData.pokemon_v2_pokemontypes;
   const [primaryType, secondaryType] = [
     primaryObj.pokemon_v2_type.name,
     secondaryObj?.pokemon_v2_type.name,
   ];
 
+  // Tab navigation
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: "first", title: "Stats" },
@@ -81,9 +91,6 @@ const Details = ({ route, navigation }) => {
   //////////////////////////////
   // Functions
   useEffect(() => {
-    // Ignore warning
-    LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
-
     const fetchPokemonData = async () => {
       Promise.all([
         fetch(`https://pokeapi.co/api/v2/pokemon/${inputData.name}`).then(
@@ -92,6 +99,7 @@ const Details = ({ route, navigation }) => {
         fetch(`https://pokeapi.co/api/v2/pokemon-species/${inputData.id}`).then(
           (data) => data.json()
         ),
+        wait(750),
       ])
         .then(([data, additionalData]) => {
           setPokemonData(data);
@@ -105,6 +113,8 @@ const Details = ({ route, navigation }) => {
 
     fetchPokemonData();
   }, []);
+
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const renderScene = ({ route }) => {
     switch (route.key) {
@@ -138,7 +148,7 @@ const Details = ({ route, navigation }) => {
           />
         );
       case "third":
-        return <ThirdRoute />;
+        return <ThirdRoute inputData={inputData} />;
       default:
         return null;
     }
@@ -228,6 +238,13 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 12,
     borderRadius: 12,
+  },
+  contentTitle: {
+    fontFamily: "NunitoMedium",
+    fontSize: 18,
+    color: COLORS.font,
+    textAlign: "center",
+    marginTop: 24,
   },
 });
 

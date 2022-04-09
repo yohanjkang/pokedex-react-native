@@ -22,31 +22,29 @@ const DetailsEvol = ({ data }) => {
   useEffect(() => {
     LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
 
-    const fetchEvolutionChain = async () => {
-      try {
-        const evolutionId = pokemonAdditionalData.evolution_chain.url
-          .trim()
-          .slice(8) // remove https://
-          .split("/");
+    // const fetchEvolutionChain = async () => {
+    //   try {
+    //     const evolutionId = pokemonAdditionalData.evolution_chain.url
+    //       .trim()
+    //       .slice(8) // remove https://
+    //       .split("/");
 
-        const result = await fetch(
-          `https://pokeapi.co/api/v2/evolution-chain/${
-            evolutionId[evolutionId.length - 2]
-          }`
-        );
+    //     const result = await fetch(
+    //       `https://pokeapi.co/api/v2/evolution-chain/${
+    //         evolutionId[evolutionId.length - 2]
+    //       }`
+    //     );
 
-        const data = await result.json();
+    //     const data = await result.json();
 
-        const evolChain = createEvolChain(data);
+    //     const evolChain = createEvolChain(data);
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // };
 
-        console.log(evolChain);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchEvolutionChain();
-  });
+    // fetchEvolutionChain();
+  }, []);
 
   const createEvolChain = ({ chain: data }) => {
     const evolutions = {

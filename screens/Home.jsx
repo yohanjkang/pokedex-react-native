@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  SafeAreaView,
-  View,
-  FlatList,
-  StyleSheet,
-  Text,
-  Image,
-  StatusBar,
-} from "react-native";
+import { SafeAreaView, FlatList, Text, StatusBar } from "react-native";
 
 import ListItem from "../components/ListItem";
 import Header from "../components/Header";
@@ -17,17 +9,29 @@ const Home = () => {
   const [pokemonData, setPokemonData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Create pokemon card
+  const createListItem = ({ item }) =>
+    item.id < 10000 && <ListItem data={item} isDetails={false} />;
+
   const handleSearch = (value) => {
     if (value.length === 0) setPokemonData(initData);
 
+    // Check if ID being passed
+    const filteredDataByID = initData.filter((item) =>
+      item.id.toString().includes(value)
+    );
+
+    // Check if name being passed
     const filteredData = initData.filter((item) =>
       item.name.toLowerCase().includes(value.toLowerCase())
     );
 
-    if (filteredData.length === 0) setPokemonData(initData);
-    else setPokemonData(filteredData);
+    if (filteredData.length === 0 && filteredDataByID.length === 0)
+      setPokemonData(initData);
+    else setPokemonData([...filteredDataByID, ...filteredData]);
   };
 
+  // GraphQL query
   const gqlQuery = `query pokeAPIquery {
     pokemon_v2_pokemon {
       name
@@ -40,11 +44,6 @@ const Home = () => {
     }
   }`;
 
-  const gqlVariables = {
-    limit: 20,
-    offset: 1,
-  };
-
   useEffect(() => {
     const fetchPokemonData = async () => {
       try {
@@ -53,13 +52,12 @@ const Home = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             query: gqlQuery,
-            //   variables: gqlVariables,
           }),
           method: "POST",
         })
           .then((res) => res.json())
           .then((res) => {
-            if (!initData) setInitData(res.data.pokemon_v2_pokemon);
+            setInitData(res.data.pokemon_v2_pokemon);
             setPokemonData(res.data.pokemon_v2_pokemon);
             setLoading(false);
           });
@@ -71,6 +69,7 @@ const Home = () => {
     fetchPokemonData();
   }, []);
 
+  // Loading screen
   if (loading)
     return (
       <SafeAreaView
@@ -92,14 +91,15 @@ const Home = () => {
         backgroundColor="transparent"
         barStyle="dark-content"
       />
+      <Header onSearch={handleSearch} />
       <FlatList
         data={pokemonData}
-        renderItem={({ item }) =>
-          item.id < 10000 && <ListItem data={item} isDetails={false} />
-        }
+        renderItem={createListItem}
         keyExtractor={(item) => item.id}
-        ListHeaderComponent={<Header onSearch={handleSearch} />}
-        style={{ marginTop: StatusBar.currentHeight }}
+        // Optimize flatlist (?)
+        initialNumToRender={50}
+        maxToRenderPerBatch={25}
+        windowSize={10}
       />
     </SafeAreaView>
   );
