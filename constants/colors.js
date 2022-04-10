@@ -2,6 +2,9 @@ export const COLORS = {
   font: "#4f4f4f",
   lightFont: "#fff",
   backgroundDefault: "#fafafa",
+  all: {
+    default: "#b8b8b8",
+  },
   bug: {
     default: "#a5c95b",
     light: "#b8cf8a",
@@ -67,8 +70,8 @@ export const COLORS = {
     light: "#e3d7b8",
   },
   steel: {
-    default: "#688f9e",
-    light: "#82a1ad",
+    default: "#78a0b0",
+    light: "#9dc1cf",
   },
   water: {
     default: "#55a2e0",

@@ -163,7 +163,7 @@ const Details = ({ route, navigation }) => {
       <SafeAreaView
         style={{
           flex: 1,
-          backgroundColor: ShadeColor(COLORS[primaryType].default, 10),
+          backgroundColor: COLORS[primaryType].light,
         }}
       >
         <ListItem data={inputData} type={"Details"} />

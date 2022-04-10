@@ -6,6 +6,7 @@ import { useState, createContext } from "react";
 import Home from "./screens/Home";
 import Details from "./screens/Details";
 import { PokemonContext } from "./components/PokemonContext";
+import { Modal } from "react-native";
 
 const Stack = createStackNavigator();
 

@@ -6,7 +6,11 @@ import Header from "../components/Header";
 import { PokemonContext } from "../components/PokemonContext";
 
 const Home = () => {
-  // const [initData, setInitData] = useState(null);
+  // Filter variables
+  let filterType = "all";
+  let filterGen = "all";
+
+  // Pokemon list info
   const [pokemonData, setPokemonData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -15,6 +19,7 @@ const Home = () => {
   // Create pokemon card
   const createListItem = ({ item }) => <ListItem data={item} type={""} />;
 
+  // Search functionality
   const handleSearch = (value) => {
     if (value.length === 0) setPokemonData(pokemonList);
 
@@ -33,19 +38,42 @@ const Home = () => {
     else setPokemonData([...filteredDataByID, ...filteredData]);
   };
 
-  // GraphQL query
-  // const gqlQuery = `query pokeAPIquery {
-  //   pokemon_v2_pokemon {
-  //     name
-  //     id
-  //     pokemon_v2_pokemontypes {
-  //       pokemon_v2_type {
-  //         name
-  //       }
-  //     }
-  //   }
-  // }`;
+  // Filter functionality
+  const handleTypeFilter = (type) => {
+    // Filter already applied
+    if (filterType === type) return;
 
+    // Reset type filter
+    if (type === "all") {
+      setPokemonData(pokemonList);
+      filterType = "all";
+      return;
+    }
+
+    // Check if generation filter is being applied
+    const listToFilter = filterGen === "all" ? pokemonList : pokemonData;
+
+    const filteredData = listToFilter.filter((item) => {
+      const types = item.pokemon_v2_pokemons[0].pokemon_v2_pokemontypes;
+
+      if (
+        types[0].pokemon_v2_type.name === type ||
+        types[1]?.pokemon_v2_type.name === type
+      ) {
+        return true;
+      }
+      return false;
+    });
+
+    if (filteredData.length === 0) {
+      setPokemonData(pokemonList);
+    } else {
+      setPokemonData(filteredData);
+      filterType = type;
+    }
+  };
+
+  // GraphQL query
   const gqlQuery = `query pokeAPIquery {
     pokemon_v2_pokemonspecies(order_by: {id: asc}) {
       name
@@ -113,7 +141,8 @@ const Home = () => {
         backgroundColor="transparent"
         barStyle="dark-content"
       />
-      <Header onSearch={handleSearch} />
+      <Header onSearch={handleSearch} onTypeFilter={handleTypeFilter} />
+
       <FlatList
         data={pokemonData}
         renderItem={createListItem}
@@ -122,6 +151,7 @@ const Home = () => {
         initialNumToRender={50}
         maxToRenderPerBatch={25}
         windowSize={10}
+        contentContainerStyle={{ paddingBottom: 175 }}
       />
     </SafeAreaView>
   );

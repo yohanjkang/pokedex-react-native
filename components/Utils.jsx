@@ -18,27 +18,29 @@ export function ShadeColor(color, percent) {
   return "#" + RR + GG + BB;
 }
 
+export const typeNames = {
+  bug: 1,
+  dark: 1,
+  dragon: 1,
+  electric: 1,
+  fairy: 1,
+  fighting: 1,
+  fire: 1,
+  flying: 1,
+  ghost: 1,
+  grass: 1,
+  ground: 1,
+  ice: 1,
+  normal: 1,
+  poison: 1,
+  psychic: 1,
+  rock: 1,
+  steel: 1,
+  water: 1,
+};
+
 export function EffectivenessCalculator(type1, type2) {
-  const types = {
-    bug: 1,
-    dark: 1,
-    dragon: 1,
-    electric: 1,
-    fairy: 1,
-    fighting: 1,
-    fire: 1,
-    flying: 1,
-    ghost: 1,
-    grass: 1,
-    ground: 1,
-    ice: 1,
-    normal: 1,
-    poison: 1,
-    psychic: 1,
-    rock: 1,
-    steel: 1,
-    water: 1,
-  };
+  const types = { ...typeNames };
 
   switch (type1) {
     case "bug":
