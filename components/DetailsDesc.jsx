@@ -18,7 +18,8 @@ const DetailsDesc = ({ data }) => {
   );
   const [inputData, setInputData] = useState(data.inputData);
 
-  const [primaryObj, secondaryObj] = inputData.pokemon_v2_pokemontypes;
+  const [primaryObj, secondaryObj] =
+    inputData.pokemon_v2_pokemons[0].pokemon_v2_pokemontypes;
   const [primaryType, secondaryType] = [
     primaryObj.pokemon_v2_type.name,
     secondaryObj?.pokemon_v2_type.name,
@@ -51,6 +52,9 @@ const DetailsDesc = ({ data }) => {
     );
 
     switch (stat.name) {
+      case "hp":
+        statName = "HP";
+        break;
       case "attack":
         statName = "ATK";
         break;
@@ -74,6 +78,7 @@ const DetailsDesc = ({ data }) => {
     return (
       <View key={stat.id} style={{ flexDirection: "row", marginBottom: 6 }}>
         <Text
+          key={stat.id}
           style={{
             ...styles.statName,
             backgroundColor: ShadeColor(COLORS[primaryType].default, -15),
@@ -82,6 +87,7 @@ const DetailsDesc = ({ data }) => {
           {statName}
         </Text>
         <Text
+          key={stat.id}
           style={{
             ...styles.statVal,
             width: `${(statVal / maxStat) * 75}%`,

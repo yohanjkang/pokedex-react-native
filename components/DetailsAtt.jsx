@@ -5,6 +5,7 @@ import {
   ScrollView,
   LogBox,
   Image,
+  FlatList,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 
@@ -15,7 +16,8 @@ import { EffectivenessCalculator } from "./Utils";
 const DetailsAtt = ({ data }) => {
   const [inputData, setInputData] = useState(data.inputData);
 
-  const [primaryObj, secondaryObj] = inputData.pokemon_v2_pokemontypes;
+  const [primaryObj, secondaryObj] =
+    inputData.pokemon_v2_pokemons[0].pokemon_v2_pokemontypes;
   const [primaryType, secondaryType] = [
     primaryObj.pokemon_v2_type.name,
     secondaryObj?.pokemon_v2_type.name,
@@ -47,12 +49,17 @@ const DetailsAtt = ({ data }) => {
         if (multipliers[type] === 0.5)
           resistantTo.push({
             type,
-            multiplier: "1/2",
+            multiplier: "½",
           });
         else if (multipliers[type] === 0.25)
           resistantTo.push({
             type,
-            multiplier: "1/4",
+            multiplier: "¼",
+          });
+        else
+          resistantTo.push({
+            type,
+            multiplier: multipliers[type],
           });
       } else
         normalDmg.push({
@@ -69,6 +76,7 @@ const DetailsAtt = ({ data }) => {
   const renderEffectiveness = (info) => {
     return (
       <View
+        key={info.type}
         style={{
           ...styles.effectiveness,
           backgroundColor: COLORS[info.type].light,
@@ -116,11 +124,16 @@ const DetailsAtt = ({ data }) => {
 
 const styles = StyleSheet.create({
   content: {
+    flex: 1,
     backgroundColor: COLORS.backgroundDefault,
     margin: 10,
-    padding: 12,
-    paddingBottom: 6,
+    padding: 3,
     borderRadius: 12,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    alignItems: "stretch",
+    height: "auto",
   },
   contentTitle: {
     fontFamily: "NunitoMedium",
@@ -130,12 +143,12 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   effectiveness: {
-    flex: 1,
+    width: "48%",
     flexDirection: "row",
-    justifyContent: "space-between",
+    flexGrow: 1,
     alignItems: "center",
+    margin: 3,
     borderRadius: 12,
-    marginBottom: 6,
     overflow: "hidden",
   },
   effectivenessText: {
@@ -144,8 +157,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   effectivenessTextContainer: {
-    height: "100%",
+    height: 40,
     width: "20%",
+    marginLeft: "auto",
     justifyContent: "center",
     alignItems: "center",
   },

@@ -74,7 +74,8 @@ const Details = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
 
   // Pokemon type info
-  const [primaryObj, secondaryObj] = inputData.pokemon_v2_pokemontypes;
+  const [primaryObj, secondaryObj] =
+    inputData.pokemon_v2_pokemons[0].pokemon_v2_pokemontypes;
   const [primaryType, secondaryType] = [
     primaryObj.pokemon_v2_type.name,
     secondaryObj?.pokemon_v2_type.name,
@@ -84,8 +85,8 @@ const Details = ({ route, navigation }) => {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: "first", title: "Stats" },
-    { key: "second", title: "Evolution" },
-    { key: "third", title: "Attributes" },
+    { key: "second", title: "Evolution Chain" },
+    { key: "third", title: "Effectiveness" },
   ]);
 
   //////////////////////////////
@@ -99,7 +100,7 @@ const Details = ({ route, navigation }) => {
         fetch(`https://pokeapi.co/api/v2/pokemon-species/${inputData.id}`).then(
           (data) => data.json()
         ),
-        wait(750),
+        wait(700),
       ])
         .then(([data, additionalData]) => {
           setPokemonData(data);
@@ -165,7 +166,7 @@ const Details = ({ route, navigation }) => {
           backgroundColor: ShadeColor(COLORS[primaryType].default, 10),
         }}
       >
-        <ListItem data={inputData} isDetails={true} />
+        <ListItem data={inputData} type={"Details"} />
         {loading ? (
           <TabView
             navigationState={{ index, routes }}
@@ -180,6 +181,7 @@ const Details = ({ route, navigation }) => {
                     style={{
                       color: COLORS.font,
                       fontFamily: "NunitoExtraBold",
+                      textAlign: "center",
                     }}
                   >
                     {route.title}
@@ -210,6 +212,7 @@ const Details = ({ route, navigation }) => {
                     style={{
                       color: COLORS.font,
                       fontFamily: "NunitoExtraBold",
+                      textAlign: "center",
                     }}
                   >
                     {route.title}

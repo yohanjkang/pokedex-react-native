@@ -1,49 +1,44 @@
-import { StyleSheet, Text, ScrollView, LogBox } from "react-native";
-import React, { useState, useEffect } from "react";
+import { StyleSheet, View, Text, ScrollView, Image } from "react-native";
+import React, { useState, useEffect, useContext } from "react";
 
+import { PokemonContext } from "./PokemonContext";
 import { COLORS } from "../constants/colors";
+import ListItem from "./ListItem";
+import chevronDownIcon from "../assets/misc_icons/chevron_down.png";
 
 const DetailsEvol = ({ data }) => {
-  const [pokemonData, setPokemonData] = useState(data.pokemonData);
   const [pokemonAdditionalData, setPokemonAdditionalData] = useState(
     data.pokemonAdditionalData
   );
-  const [inputData, setInputData] = useState(data.inputData);
-
-  const [primaryObj, secondaryObj] = inputData.pokemon_v2_pokemontypes;
-  const [primaryType, secondaryType] = [
-    primaryObj.pokemon_v2_type.name,
-    secondaryObj?.pokemon_v2_type.name,
-  ];
 
   const [loading, setLoading] = useState(true);
   const [evolChain, setEvolChain] = useState([]);
 
+  const { pokemonList, setPokemonList } = useContext(PokemonContext);
+
   useEffect(() => {
-    LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
+    const fetchEvolutionChain = async () => {
+      try {
+        const evolutionId = pokemonAdditionalData.evolution_chain.url
+          .trim()
+          .slice(8) // remove https://
+          .split("/");
 
-    // const fetchEvolutionChain = async () => {
-    //   try {
-    //     const evolutionId = pokemonAdditionalData.evolution_chain.url
-    //       .trim()
-    //       .slice(8) // remove https://
-    //       .split("/");
+        const result = await fetch(
+          `https://pokeapi.co/api/v2/evolution-chain/${
+            evolutionId[evolutionId.length - 2] // get evolution-chain ID
+          }`
+        );
 
-    //     const result = await fetch(
-    //       `https://pokeapi.co/api/v2/evolution-chain/${
-    //         evolutionId[evolutionId.length - 2]
-    //       }`
-    //     );
+        const data = await result.json();
 
-    //     const data = await result.json();
+        setEvolChain(createEvolChain(data));
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-    //     const evolChain = createEvolChain(data);
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // };
-
-    // fetchEvolutionChain();
+    fetchEvolutionChain();
   }, []);
 
   const createEvolChain = ({ chain: data }) => {
@@ -68,9 +63,42 @@ const DetailsEvol = ({ data }) => {
     return evolutions;
   };
 
+  const renderEvolution = (pokemon) => {
+    const evolution = pokemonList.filter((item) =>
+      item.name.toLowerCase().includes(pokemon)
+    );
+
+    if (evolution.length == 0) return null;
+
+    return <ListItem data={evolution[0]} type={"Additional"} />;
+  };
+
   return (
     <ScrollView>
       <Text style={styles.contentTitle}>Evolution Chain</Text>
+      {renderEvolution(evolChain[0])}
+      {evolChain[1]?.length !== 0 && (
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+          }}
+        >
+          <Image style={{ width: 40, height: 30 }} source={chevronDownIcon} />
+        </View>
+      )}
+      {evolChain[1]?.map((pokemon) => renderEvolution(pokemon))}
+      {evolChain[2]?.length !== 0 && (
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+          }}
+        >
+          <Image style={{ width: 40, height: 30 }} source={chevronDownIcon} />
+        </View>
+      )}
+      {evolChain[2]?.map((pokemon) => renderEvolution(pokemon))}
     </ScrollView>
   );
 };
