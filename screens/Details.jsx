@@ -1,72 +1,23 @@
-import { StyleSheet, View, Text, SafeAreaView } from "react-native";
+import { StyleSheet, View, Text, SafeAreaView, Dimensions } from "react-native";
 import React, { useEffect, useState } from "react";
 import { TabView, TabBar } from "react-native-tab-view";
 
-import DetailsDesc from "../components/DetailsDesc";
-import DetailsEvol from "../components/DetailsEvol";
-import DetailsAtt from "../components/DetailsAtt";
+import {
+  FirstRoutePreload,
+  FirstRoute,
+} from "../components/TabRoutes/FirstRoute";
+import SecondRoute from "../components/TabRoutes/SecondRoute";
+import ThirdRoute from "../components/TabRoutes/ThirdRoute";
 import ListItem from "../components/ListItem";
 import { ShadeColor } from "../components/Utils";
 import { COLORS } from "../constants/colors";
 
-// Pre-loaded descriptions tab
-const FirstRoute = () => (
-  <>
-    <Text style={styles.contentTitle}>Description</Text>
-    <View style={{ ...styles.content, alignItems: "center" }}>
-      <Text>Loading...</Text>
-    </View>
-    <Text style={styles.contentTitle}>Base Stats</Text>
-    <View style={{ ...styles.content, alignItems: "center" }}>
-      <Text>Loading...</Text>
-    </View>
-  </>
-);
-
-// Loaded descriptions tab
-const FirstRouteLoaded = ({
-  pokemonData,
-  pokemonAdditionalData,
-  inputData,
-}) => {
-  // Pokemon descriptions
-  return (
-    <DetailsDesc
-      data={{
-        pokemonData,
-        pokemonAdditionalData,
-        inputData,
-      }}
-    />
-  );
+const initialLayout = {
+  height: 0,
+  width: Dimensions.get("window").width,
 };
 
-// Evolution chain tab
-const SecondRoute = ({ pokemonData, pokemonAdditionalData, inputData }) => {
-  return (
-    <DetailsEvol
-      data={{
-        pokemonData,
-        pokemonAdditionalData,
-        inputData,
-      }}
-    />
-  );
-};
-
-// Type effectiveness tab
-const ThirdRoute = ({ pokemonData, pokemonAdditionalData, inputData }) => {
-  return (
-    <DetailsAtt
-      data={{
-        pokemonData,
-        pokemonAdditionalData,
-        inputData,
-      }}
-    />
-  );
-};
-
+// DETAILS SCREEN
 const Details = ({ route, navigation }) => {
   const [inputData, setInputData] = useState(route.params.data);
   const [pokemonData, setPokemonData] = useState(null);
@@ -117,10 +68,11 @@ const Details = ({ route, navigation }) => {
 
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+  // Tab view before data is loaded
   const renderScene = ({ route }) => {
     switch (route.key) {
       case "first":
-        return <FirstRoute />;
+        return <FirstRoutePreload />;
       case "second":
         return <></>;
       case "third":
@@ -130,11 +82,12 @@ const Details = ({ route, navigation }) => {
     }
   };
 
+  // Tab view after data is loaded
   const renderSceneLoaded = ({ route }) => {
     switch (route.key) {
       case "first":
         return (
-          <FirstRouteLoaded
+          <FirstRoute
             pokemonData={pokemonData}
             pokemonAdditionalData={pokemonAdditionalData}
             inputData={inputData}
@@ -164,28 +117,23 @@ const Details = ({ route, navigation }) => {
         style={{
           flex: 1,
           backgroundColor: COLORS[primaryType].light,
+          // backgroundColor: "#b8d9bd",
         }}
       >
         <ListItem data={inputData} type={"Details"} />
         {loading ? (
+          // Pre-load tab view
           <TabView
             navigationState={{ index, routes }}
             renderScene={renderScene}
             onIndexChange={setIndex}
             swipeEnabled={false}
+            initialLayout={initialLayout}
             renderTabBar={(props) => (
               <TabBar
                 {...props}
-                renderLabel={({ route, focused }) => (
-                  <Text
-                    style={{
-                      color: COLORS.font,
-                      fontFamily: "NunitoExtraBold",
-                      textAlign: "center",
-                    }}
-                  >
-                    {route.title}
-                  </Text>
+                renderLabel={({ route }) => (
+                  <Text style={styles.tabBarText}>{route.title}</Text>
                 )}
                 style={{
                   backgroundColor: COLORS[primaryType].default,
@@ -199,6 +147,7 @@ const Details = ({ route, navigation }) => {
             )}
           />
         ) : (
+          // Post-load tab view
           <TabView
             navigationState={{ index, routes }}
             renderScene={renderSceneLoaded}
@@ -207,16 +156,8 @@ const Details = ({ route, navigation }) => {
             renderTabBar={(props) => (
               <TabBar
                 {...props}
-                renderLabel={({ route, focused }) => (
-                  <Text
-                    style={{
-                      color: COLORS.font,
-                      fontFamily: "NunitoExtraBold",
-                      textAlign: "center",
-                    }}
-                  >
-                    {route.title}
-                  </Text>
+                renderLabel={({ route }) => (
+                  <Text style={styles.tabBarText}>{route.title}</Text>
                 )}
                 style={{
                   backgroundColor: COLORS[primaryType].default,
@@ -236,18 +177,10 @@ const Details = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  content: {
-    backgroundColor: COLORS.backgroundDefault,
-    margin: 10,
-    padding: 12,
-    borderRadius: 12,
-  },
-  contentTitle: {
-    fontFamily: "NunitoMedium",
-    fontSize: 18,
+  tabBarText: {
     color: COLORS.font,
+    fontFamily: "NunitoExtraBold",
     textAlign: "center",
-    marginTop: 24,
   },
 });
 

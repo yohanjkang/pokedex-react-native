@@ -6,12 +6,35 @@ import { COLORS } from "../constants/colors";
 import ListItem from "./ListItem";
 import chevronDownIcon from "../assets/misc_icons/chevron_down.png";
 
+// Functions
+const createEvolChain = ({ chain: data }) => {
+  const evolutions = {
+    0: data.species.name,
+  };
+
+  if (data.evolves_to.length === 0) return evolutions;
+
+  const tier2 = [];
+  const tier3 = [];
+  data.evolves_to.forEach((tier2Evo) => {
+    tier2.push(tier2Evo.species.name);
+    tier2Evo.evolves_to.forEach((tier3Evo) => {
+      tier3.push(tier3Evo.species.name);
+    });
+  });
+
+  evolutions[1] = tier2;
+  evolutions[2] = tier3;
+
+  return evolutions;
+};
+
+// DETAILS EVOL
 const DetailsEvol = ({ data }) => {
   const [pokemonAdditionalData, setPokemonAdditionalData] = useState(
     data.pokemonAdditionalData
   );
 
-  const [loading, setLoading] = useState(true);
   const [evolChain, setEvolChain] = useState([]);
 
   const { pokemonList, setPokemonList } = useContext(PokemonContext);
@@ -41,28 +64,6 @@ const DetailsEvol = ({ data }) => {
     fetchEvolutionChain();
   }, []);
 
-  const createEvolChain = ({ chain: data }) => {
-    const evolutions = {
-      0: data.species.name,
-    };
-
-    if (data.evolves_to.length === 0) return evolutions;
-
-    const tier2 = [];
-    const tier3 = [];
-    data.evolves_to.forEach((tier2Evo) => {
-      tier2.push(tier2Evo.species.name);
-      tier2Evo.evolves_to.forEach((tier3Evo) => {
-        tier3.push(tier3Evo.species.name);
-      });
-    });
-
-    evolutions[1] = tier2;
-    evolutions[2] = tier3;
-
-    return evolutions;
-  };
-
   const renderEvolution = (pokemon) => {
     const evolution = pokemonList.filter((item) =>
       item.name.toLowerCase().includes(pokemon)
@@ -70,7 +71,9 @@ const DetailsEvol = ({ data }) => {
 
     if (evolution.length == 0) return null;
 
-    return <ListItem data={evolution[0]} type={"Additional"} />;
+    return (
+      <ListItem data={evolution[0]} type={"Additional"} key={evolution.name} />
+    );
   };
 
   return (

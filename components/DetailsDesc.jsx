@@ -1,16 +1,60 @@
-import {
-  StyleSheet,
-  View,
-  Text,
-  FlatList,
-  ScrollView,
-  LogBox,
-} from "react-native";
-import React, { useState, useEffect } from "react";
+import { StyleSheet, View, Text, ScrollView } from "react-native";
+import React, { useState } from "react";
 
 import { ShadeColor } from "./Utils";
 import { COLORS } from "../constants/colors";
 
+// Functions
+const setDesc = (pokemonAdditionalData) => {
+  const { flavor_text_entries: descriptions } = pokemonAdditionalData;
+  for (let i = descriptions.length - 1; i >= 0; i--) {
+    if (descriptions[i].language.name !== "en") continue;
+    return (
+      <Text style={styles.descriptionText}>
+        {descriptions[i].flavor_text.replace(/(\r\n|\n|\r)/gm, " ")}
+      </Text>
+    );
+  }
+
+  return <Text>Description unavailable.</Text>;
+};
+
+const setGen = (gen) => {
+  let genText;
+  switch (gen) {
+    case "generation-i":
+      genText = "Generation I";
+      break;
+    case "generation-ii":
+      genText = "Generation II";
+      break;
+    case "generation-iii":
+      genText = "Generation III";
+      break;
+    case "generation-iv":
+      genText = "Generation IV";
+      break;
+    case "generation-v":
+      genText = "Generation V";
+      break;
+    case "generation-vi":
+      genText = "Generation VI";
+      break;
+    case "generation-vii":
+      genText = "Generation VII";
+      break;
+    case "generation-viii":
+      genText = "Generation VIII";
+      break;
+
+    default:
+      break;
+  }
+
+  return <Text style={styles.descriptionText}>{genText}</Text>;
+};
+
+// DETAILS DESC
 const DetailsDesc = ({ data }) => {
   const [pokemonData, setPokemonData] = useState(data.pokemonData);
   const [pokemonAdditionalData, setPokemonAdditionalData] = useState(
@@ -18,32 +62,10 @@ const DetailsDesc = ({ data }) => {
   );
   const [inputData, setInputData] = useState(data.inputData);
 
-  const [primaryObj, secondaryObj] =
-    inputData.pokemon_v2_pokemons[0].pokemon_v2_pokemontypes;
-  const [primaryType, secondaryType] = [
-    primaryObj.pokemon_v2_type.name,
-    secondaryObj?.pokemon_v2_type.name,
-  ];
+  const [primaryObj] = inputData.pokemon_v2_pokemons[0].pokemon_v2_pokemontypes;
+  const primaryType = primaryObj.pokemon_v2_type.name;
 
-  useEffect(() => {
-    LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
-  }, []);
-
-  const setDesc = () => {
-    const { flavor_text_entries: descriptions } = pokemonAdditionalData;
-    for (let i = descriptions.length - 1; i >= 0; i--) {
-      if (descriptions[i].language.name !== "en") continue;
-      else
-        return (
-          <Text style={styles.descriptionText}>
-            {descriptions[i].flavor_text.replace(/(\r\n|\n|\r)/gm, " ")}
-          </Text>
-        );
-    }
-
-    return <Text>{descriptions[0].flavor_text}</Text>;
-  };
-
+  // Functions
   const setStat = ({ stat, base_stat: statVal }) => {
     let statName;
     const maxStat = Math.max.apply(
@@ -100,51 +122,19 @@ const DetailsDesc = ({ data }) => {
     );
   };
 
-  const setGen = (gen) => {
-    let genText;
-    switch (gen) {
-      case "generation-i":
-        genText = "GEN 1";
-        break;
-      case "generation-ii":
-        genText = "GEN 2";
-        break;
-      case "generation-iii":
-        genText = "GEN 3";
-        break;
-      case "generation-iv":
-        genText = "GEN 4";
-        break;
-      case "generation-v":
-        genText = "GEN 5";
-        break;
-      case "generation-vi":
-        genText = "GEN 6";
-        break;
-      case "generation-vii":
-        genText = "GEN 7";
-        break;
-      case "generation-viii":
-        genText = "GEN 8";
-        break;
-
-      default:
-        break;
-    }
-
-    return <Text style={styles.descriptionText}>{genText}</Text>;
-  };
-
   return (
     <ScrollView>
       <Text style={styles.contentTitle}>Description</Text>
+
+      {/* Description */}
       <View
         style={{
           ...styles.content,
           textAlign: "center",
         }}
       >
-        {setDesc()}
+        {/* Flavor Text */}
+        {setDesc(pokemonAdditionalData)}
         <Text
           style={{
             ...styles.descriptionTitle,
@@ -154,6 +144,9 @@ const DetailsDesc = ({ data }) => {
         >
           Description
         </Text>
+        {/* END Flavor Text */}
+
+        {/* Generation */}
         {setGen(pokemonAdditionalData.generation.name)}
         <Text
           style={{
@@ -164,7 +157,10 @@ const DetailsDesc = ({ data }) => {
         >
           Generation
         </Text>
+        {/* END Generation */}
+
         <View style={{ flexDirection: "row" }}>
+          {/* Height */}
           <View style={{ flexGrow: 1, marginRight: 12 }}>
             <Text style={styles.descriptionText}>{`${
               pokemonData.height / 10
@@ -178,6 +174,9 @@ const DetailsDesc = ({ data }) => {
               Height
             </Text>
           </View>
+          {/* END Height */}
+
+          {/* Weight */}
           <View style={{ flexGrow: 1 }}>
             <Text style={styles.descriptionText}>{`${
               pokemonData.weight / 10
@@ -191,14 +190,18 @@ const DetailsDesc = ({ data }) => {
               Weight
             </Text>
           </View>
+          {/* END Weight */}
         </View>
       </View>
+      {/* END Description */}
 
+      {/* Base Stats */}
       <Text style={styles.contentTitle}>Base Stats</Text>
 
       <View style={{ ...styles.content, paddingBottom: 4, marginBottom: 30 }}>
         {pokemonData.stats.map((stat) => setStat(stat))}
       </View>
+      {/* END Base Stats */}
     </ScrollView>
   );
 };

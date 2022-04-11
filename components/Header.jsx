@@ -5,8 +5,8 @@ import {
   Image,
   TextInput,
   StatusBar,
-  Button,
   Dimensions,
+  FlatList,
   TouchableOpacity,
 } from "react-native";
 import React, { useState } from "react";
@@ -16,21 +16,70 @@ import { typeNames } from "./Utils";
 import { COLORS } from "../constants/colors";
 import { ICONS } from "../constants/icons";
 import searchIcon from "../assets/misc_icons/search.png";
-import { FlatList } from "react-native-gesture-handler";
 
-const Header = ({ onSearch, onTypeFilter }) => {
-  const [modalVisible, setModalVisible] = useState(false);
+const genNames = [
+  "All",
+  "Generation I",
+  "Generation II",
+  "Generation III",
+  "Generation IV",
+  "Generation V",
+  "Generation VI",
+  "Generation VII",
+  "Generation VIII",
+];
 
-  const [typeFilterText, setTypeFilterText] = useState("All");
+const genNameToColor = {
+  allGen: genNames[0],
+  gen1: genNames[1],
+  gen2: genNames[2],
+  gen3: genNames[3],
+  gen4: genNames[4],
+  gen5: genNames[5],
+  gen6: genNames[6],
+  gen7: genNames[7],
+  gen8: genNames[8],
+};
+
+// Functions
+// Return object key from value
+const getKeyByValue = (object, value) =>
+  Object.keys(object).find((key) => object[key] === value);
+
+// HEADER
+const Header = ({ onSearch, onTypeFilter, onGenFilter }) => {
+  const [typeModalVisible, setTypeModalVisible] = useState(false);
+  const [genModalVisible, setGenModalVisible] = useState(false);
+
+  const [typeFilterText, setTypeFilterText] = useState("Types");
+  const [typeFilterTextColor, setTypeFilterTextColor] = useState(COLORS.font);
   const [typeFilterColor, setTypeFilterColor] = useState(COLORS["all"].default);
 
+  const [genFilterText, setGenFilterText] = useState("Generation");
+  const [genFilterTextColor, setGenFilterTextColor] = useState(COLORS.font);
+  const [genFilterColor, setGenFilterColor] = useState(COLORS["allGen"]);
+
   const renderTypeFilters = (type) => {
+    const typeFilterText = type === "all" ? "Types" : type;
+    const fontColor =
+      type === "dark" ||
+      type === "dragon" ||
+      type === "fighting" ||
+      type === "ghost" ||
+      type === "ground" ||
+      type === "poison" ||
+      type === "steel" ||
+      type === "water"
+        ? COLORS.lightFont
+        : COLORS.font;
+
     return (
       <TouchableOpacity
         onPress={() => {
           onTypeFilter(type);
-          setModalVisible(false);
-          setTypeFilterText(type);
+          setTypeModalVisible(false);
+          setTypeFilterText(typeFilterText);
+          setTypeFilterTextColor(fontColor);
           setTypeFilterColor(COLORS[type].default);
         }}
         style={{ ...styles.typeFilter, backgroundColor: COLORS[type].light }}
@@ -42,9 +91,49 @@ const Header = ({ onSearch, onTypeFilter }) => {
     );
   };
 
+  const renderGenFilters = (gen) => {
+    const genFilterText = gen === "All" ? "Generation" : gen;
+    const textColor =
+      gen === "Generation I" ||
+      gen === "Generation V" ||
+      gen === "Generation VI" ||
+      gen === "Generation VII" ||
+      gen === "Generation VIII"
+        ? COLORS.lightFont
+        : COLORS.font;
+
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          onGenFilter(getKeyByValue(genNameToColor, gen));
+          setGenModalVisible(false);
+          setGenFilterText(genFilterText);
+          setGenFilterTextColor(textColor);
+          setGenFilterColor(COLORS[getKeyByValue(genNameToColor, gen)]);
+        }}
+        style={{
+          ...styles.typeFilter,
+          height: 50,
+          backgroundColor: COLORS[getKeyByValue(genNameToColor, gen)],
+        }}
+        activeOpacity={0.7}
+      >
+        <Text
+          style={{
+            ...styles.typeName,
+            color: textColor,
+            textTransform: "none",
+          }}
+        >
+          {gen}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <View style={styles.main}>
-      <Text style={styles.headerTitle}>Pokémon</Text>
+      <Text style={styles.headerTitle}>Pokédex</Text>
       {/* Filters */}
       <View
         style={{
@@ -52,44 +141,54 @@ const Header = ({ onSearch, onTypeFilter }) => {
           marginBottom: 12,
         }}
       >
+        {/* Type Filter */}
         <TouchableOpacity
-          style={{ ...styles.filterButton, backgroundColor: typeFilterColor }}
-          onPress={() => setModalVisible(true)}
+          style={{
+            ...styles.filterButton,
+            backgroundColor: typeFilterColor,
+            marginRight: 6,
+          }}
+          onPress={() => setTypeModalVisible(true)}
         >
           <Text
             style={{
               textTransform: "capitalize",
               fontFamily: "NunitoBold",
-              color: COLORS.font,
+              color: typeFilterTextColor,
             }}
           >
             {typeFilterText}
           </Text>
         </TouchableOpacity>
+        {/* END Type Filter */}
+
+        {/* Gen Filter */}
         <TouchableOpacity
+          onPress={() => setGenModalVisible(true)}
           style={{
             ...styles.filterButton,
-            backgroundColor: COLORS["all"].default,
+            backgroundColor: genFilterColor,
           }}
         >
           <Text
             style={{
-              textTransform: "capitalize",
               fontFamily: "NunitoBold",
-              color: COLORS.font,
+              color: genFilterTextColor,
             }}
           >
-            Gen
+            {genFilterText}
           </Text>
         </TouchableOpacity>
+        {/* END Gen Filter */}
       </View>
-      {/* END */}
+      {/* END Filters */}
+
       {/* Type Modal */}
       <Modal
-        isVisible={modalVisible}
+        isVisible={typeModalVisible}
         deviceWidth={Dimensions.deviceWidth}
-        onBackButtonPress={() => setModalVisible(false)}
-        onBackdropPress={() => setModalVisible(false)}
+        onBackButtonPress={() => setTypeModalVisible(false)}
+        onBackdropPress={() => setTypeModalVisible(false)}
         hideModalContentWhileAnimating
         backdropTransitionOutTiming={0}
         style={{
@@ -105,12 +204,11 @@ const Header = ({ onSearch, onTypeFilter }) => {
             overflow: "hidden",
           }}
         >
-          {/* {Object.keys(typeNames).map((type) => renderTypeFilters(type))} */}
           <TouchableOpacity
             onPress={() => {
               onTypeFilter("all");
-              setModalVisible(false);
-              setTypeFilterText("all");
+              setTypeModalVisible(false);
+              setTypeFilterText("Types");
               setTypeFilterColor(COLORS["all"].default);
             }}
             activeOpacity={0.7}
@@ -146,7 +244,38 @@ const Header = ({ onSearch, onTypeFilter }) => {
           />
         </View>
       </Modal>
-      {/* END */}
+      {/* END Type Modal */}
+
+      {/* Gen Modal */}
+      <Modal
+        isVisible={genModalVisible}
+        deviceWidth={Dimensions.deviceWidth}
+        onBackButtonPress={() => setGenModalVisible(false)}
+        onBackdropPress={() => setGenModalVisible(false)}
+        hideModalContentWhileAnimating
+        backdropTransitionOutTiming={0}
+        style={{
+          margin: 0,
+          justifyContent: "flex-end",
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: "white",
+            borderTopLeftRadius: 12,
+            borderTopRightRadius: 12,
+            overflow: "hidden",
+          }}
+        >
+          <FlatList
+            data={genNames}
+            renderItem={({ item }) => renderGenFilters(item)}
+            keyExtractor={(item, index) => index}
+            style={{ padding: 3 }}
+          />
+        </View>
+      </Modal>
+      {/* END Gen Modal */}
 
       {/* Searchbar */}
       <View style={styles.searchBar}>
@@ -162,7 +291,7 @@ const Header = ({ onSearch, onTypeFilter }) => {
           onChangeText={onSearch}
         />
       </View>
-      {/* END */}
+      {/* END Searchbar */}
     </View>
   );
 };
@@ -213,7 +342,6 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
     fontFamily: "NunitoBold",
     textAlign: "center",
-    color: COLORS.font,
   },
 });
 

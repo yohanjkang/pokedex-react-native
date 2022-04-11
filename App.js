@@ -1,12 +1,11 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { useState, createContext } from "react";
+import { useState } from "react";
 
 import Home from "./screens/Home";
 import Details from "./screens/Details";
 import { PokemonContext } from "./components/PokemonContext";
-import { Modal } from "react-native";
 
 const Stack = createStackNavigator();
 

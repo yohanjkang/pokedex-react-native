@@ -23,6 +23,16 @@ const ListItem = ({ data, type }) => {
     secondaryObj?.pokemon_v2_type.name,
   ];
 
+  // Handle pressing of list item
+  const handleOnPress = () => {
+    if (type === "Details") return null;
+    else if (type === "Additional") {
+      navigation.push("Details", { data });
+    } else {
+      navigation.navigate("Details", { data });
+    }
+  };
+
   const getMainStyle = () => {
     // Style for details page
     if (type === "Details")
@@ -36,6 +46,17 @@ const ListItem = ({ data, type }) => {
         marginHorizontal: 0,
         backgroundColor: COLORS[primaryType].default,
       };
+    //Style for evolution chain
+    else if (type === "Additional") {
+      return {
+        ...styles.main,
+        backgroundColor: COLORS[primaryType].default,
+        height: 108,
+        borderWidth: 4,
+        borderColor: COLORS[primaryType].default,
+        // borderColor: "black",
+      };
+    }
     // Style for home page
     else {
       return {
@@ -65,17 +86,7 @@ const ListItem = ({ data, type }) => {
 
   return (
     <TouchableOpacity
-      onPress={() =>
-        // isDetails ? "" : navigation.navigate("Details", { data })
-        {
-          if (type === "Details") return null;
-          else if (type === "Additional") {
-            navigation.push("Details", { data });
-          } else {
-            navigation.navigate("Details", { data });
-          }
-        }
-      }
+      onPress={handleOnPress}
       activeOpacity={type === "Details" ? 1 : 0.7}
     >
       <View style={getMainStyle()}>

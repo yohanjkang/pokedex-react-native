@@ -1,3 +1,6 @@
+// Returns lightened/darkened shade of color
+// percent > 0 = lighter
+// percent < 0 = darker
 export function ShadeColor(color, percent) {
   var R = parseInt(color.substring(1, 3), 16);
   var G = parseInt(color.substring(3, 5), 16);
@@ -39,6 +42,7 @@ export const typeNames = {
   water: 1,
 };
 
+// Calculate effectiveness of attacks based off type
 export function EffectivenessCalculator(type1, type2) {
   const types = { ...typeNames };
 

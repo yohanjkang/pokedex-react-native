@@ -1,23 +1,71 @@
 import React, { useState, useEffect, useContext } from "react";
-import { SafeAreaView, FlatList, Text, StatusBar, View } from "react-native";
+import { SafeAreaView, FlatList, Text, StatusBar } from "react-native";
 
 import ListItem from "../components/ListItem";
 import Header from "../components/Header";
 import { PokemonContext } from "../components/PokemonContext";
 
-const Home = () => {
-  // Filter variables
-  let filterType = "all";
-  let filterGen = "all";
+const genNameToAPIName = {
+  gen1: "generation-i",
+  gen2: "generation-ii",
+  gen3: "generation-iii",
+  gen4: "generation-iv",
+  gen5: "generation-v",
+  gen6: "generation-vi",
+  gen7: "generation-vii",
+  gen8: "generation-viii",
+};
 
+// GraphQL query
+// From: https://beta.pokeapi.co/graphql/console/
+const gqlQuery = `query pokeAPIquery {
+  pokemon_v2_pokemonspecies(order_by: {id: asc}) {
+    name
+    id
+    pokemon_v2_generation {
+      name
+    }
+    pokemon_v2_pokemons(limit: 1) {
+      pokemon_v2_pokemontypes {
+        pokemon_v2_type {
+          name
+        }
+      }
+    }
+    pokemon_v2_pokemonspeciesnames(where: {language_id: {_eq: 9}}) {
+      genus
+    }
+  }
+}`;
+
+// HOME SCREEN
+const Home = () => {
   // Pokemon list info
   const [pokemonData, setPokemonData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const { pokemonList, setPokemonList } = useContext(PokemonContext);
 
+  // Filter variables
+  const [filterType, setFilterType] = useState("all");
+  const [filterGen, setFilterGen] = useState("allGen");
+
   // Create pokemon card
   const createListItem = ({ item }) => <ListItem data={item} type={""} />;
+
+  // Update type filter (passed to Header)
+  const changeTypeFilter = (type) => {
+    if (type === filterType) return;
+
+    setFilterType(type);
+  };
+
+  // Update generation filter (passed to Header)
+  const changeGenFilter = (gen) => {
+    if (gen === filterGen) return;
+
+    setFilterGen(gen);
+  };
 
   // Search functionality
   const handleSearch = (value) => {
@@ -38,86 +86,63 @@ const Home = () => {
     else setPokemonData([...filteredDataByID, ...filteredData]);
   };
 
-  // Filter functionality
-  const handleTypeFilter = (type) => {
-    // Filter already applied
-    if (filterType === type) return;
+  // Apply filters on update
+  const applyFilters = () => {
+    let typeListToFilter;
+    // Type filter
+    if (filterType === "all") {
+      typeListToFilter = pokemonList;
+    } else {
+      typeListToFilter = pokemonList.filter((item) => {
+        const types = item.pokemon_v2_pokemons[0].pokemon_v2_pokemontypes;
 
-    // Reset type filter
-    if (type === "all") {
-      setPokemonData(pokemonList);
-      filterType = "all";
-      return;
+        return (
+          types[0].pokemon_v2_type.name === filterType ||
+          types[1]?.pokemon_v2_type.name === filterType
+        );
+      });
     }
 
-    // Check if generation filter is being applied
-    const listToFilter = filterGen === "all" ? pokemonList : pokemonData;
-
-    const filteredData = listToFilter.filter((item) => {
-      const types = item.pokemon_v2_pokemons[0].pokemon_v2_pokemontypes;
-
-      if (
-        types[0].pokemon_v2_type.name === type ||
-        types[1]?.pokemon_v2_type.name === type
-      ) {
-        return true;
-      }
-      return false;
-    });
-
-    if (filteredData.length === 0) {
-      setPokemonData(pokemonList);
+    // Generation filter
+    if (filterGen === "allGen") {
+      setPokemonData(typeListToFilter);
     } else {
-      setPokemonData(filteredData);
-      filterType = type;
+      const genListFiltered = typeListToFilter.filter(
+        (item) =>
+          genNameToAPIName[filterGen] === item.pokemon_v2_generation.name
+      );
+
+      setPokemonData(genListFiltered);
     }
   };
 
-  // GraphQL query
-  const gqlQuery = `query pokeAPIquery {
-    pokemon_v2_pokemonspecies(order_by: {id: asc}) {
-      name
-      id
-      pokemon_v2_generation {
-        name
-      }
-      pokemon_v2_pokemons(limit: 1) {
-        pokemon_v2_pokemontypes {
-          pokemon_v2_type {
-            name
-          }
-        }
-      }
-      pokemon_v2_pokemonspeciesnames(where: {language_id: {_eq: 9}}) {
-        genus
-      }
-    }
-  }`;
-
+  // On initial render
   useEffect(() => {
     const fetchPokemonData = async () => {
-      try {
-        fetch("https://beta.pokeapi.co/graphql/v1beta", {
-          credentials: "omit",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            query: gqlQuery,
-          }),
-          method: "POST",
+      fetch("https://beta.pokeapi.co/graphql/v1beta", {
+        credentials: "omit",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: gqlQuery,
+        }),
+        method: "POST",
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          setPokemonList(res.data.pokemon_v2_pokemonspecies);
+          setPokemonData(res.data.pokemon_v2_pokemonspecies);
+          setLoading(false);
         })
-          .then((res) => res.json())
-          .then((res) => {
-            setPokemonList(res.data.pokemon_v2_pokemonspecies);
-            setPokemonData(res.data.pokemon_v2_pokemonspecies);
-            setLoading(false);
-          });
-      } catch (err) {
-        console.log(err);
-      }
+        .catch((err) => alert(err));
     };
 
     fetchPokemonData();
   }, []);
+
+  // Update when filters are changed
+  useEffect(() => {
+    applyFilters();
+  }, [filterType, filterGen]);
 
   // Loading screen
   if (loading)
@@ -141,14 +166,18 @@ const Home = () => {
         backgroundColor="transparent"
         barStyle="dark-content"
       />
-      <Header onSearch={handleSearch} onTypeFilter={handleTypeFilter} />
+      <Header
+        onSearch={handleSearch}
+        onTypeFilter={changeTypeFilter}
+        onGenFilter={changeGenFilter}
+      />
 
       <FlatList
         data={pokemonData}
         renderItem={createListItem}
         keyExtractor={(item) => item.id}
         // Optimize flatlist (?)
-        initialNumToRender={50}
+        initialNumToRender={20}
         maxToRenderPerBatch={25}
         windowSize={10}
         contentContainerStyle={{ paddingBottom: 175 }}

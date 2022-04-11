@@ -1,18 +1,43 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  LogBox,
-  Image,
-  FlatList,
-} from "react-native";
+import { StyleSheet, Text, View, ScrollView, Image } from "react-native";
 import React, { useState, useEffect } from "react";
 
 import { COLORS } from "../constants/colors";
 import { ICONS } from "../constants/icons";
 import { EffectivenessCalculator } from "./Utils";
 
+// Functions
+const renderEffectiveness = (info) => {
+  return (
+    <View
+      key={info.type}
+      style={{
+        ...styles.effectiveness,
+        backgroundColor: COLORS[info.type].light,
+      }}
+    >
+      <Image source={ICONS[info.type]} style={styles.typeIcon} />
+      <Text
+        style={{
+          ...styles.effectivenessText,
+          marginLeft: 6,
+          textTransform: "uppercase",
+        }}
+      >
+        {info.type}
+      </Text>
+      <View
+        style={{
+          ...styles.effectivenessTextContainer,
+          backgroundColor: COLORS[info.type].default,
+        }}
+      >
+        <Text style={styles.effectivenessText}>x{info.multiplier}</Text>
+      </View>
+    </View>
+  );
+};
+
+// DETAILS ATT
 const DetailsAtt = ({ data }) => {
   const [inputData, setInputData] = useState(data.inputData);
 
@@ -28,8 +53,6 @@ const DetailsAtt = ({ data }) => {
   const [normalDmg, setNormalDmg] = useState([]);
 
   useEffect(() => {
-    LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
-
     const multipliers = EffectivenessCalculator(primaryType, secondaryType);
     createEffectiveness(multipliers);
   }, []);
@@ -59,7 +82,7 @@ const DetailsAtt = ({ data }) => {
         else
           resistantTo.push({
             type,
-            multiplier: multipliers[type],
+            multiplier: "0",
           });
       } else
         normalDmg.push({
@@ -71,37 +94,6 @@ const DetailsAtt = ({ data }) => {
     setWeakAgainst(weakAgainst);
     setResistantTo(resistantTo);
     setNormalDmg(normalDmg);
-  };
-
-  const renderEffectiveness = (info) => {
-    return (
-      <View
-        key={info.type}
-        style={{
-          ...styles.effectiveness,
-          backgroundColor: COLORS[info.type].light,
-        }}
-      >
-        <Image source={ICONS[info.type]} style={styles.typeIcon} />
-        <Text
-          style={{
-            ...styles.effectivenessText,
-            marginLeft: 6,
-            textTransform: "uppercase",
-          }}
-        >
-          {info.type}
-        </Text>
-        <View
-          style={{
-            ...styles.effectivenessTextContainer,
-            backgroundColor: COLORS[info.type].default,
-          }}
-        >
-          <Text style={styles.effectivenessText}>x{info.multiplier}</Text>
-        </View>
-      </View>
-    );
   };
 
   return (
