@@ -17,29 +17,33 @@ import { COLORS } from "../../constants/colors";
 import { ICONS } from "../../constants/icons";
 import { headerStyles } from "../styles";
 
-const MovesHeader = ({ onTypeFilter }) => {
+const MovesHeader = ({ onTypeFilter, onClassFilter }) => {
   const [typeModalVisible, setTypeModalVisible] = useState(false);
+  const [classModalVisible, setClassModalVisible] = useState(false);
+
   const [typeFilterText, setTypeFilterText] = useState("Types");
   const [typeFilterColor, setTypeFilterColor] = useState(COLORS["all"].default);
-  const [typeFilterTextColor, setTypeFilterTextColor] = useState(COLORS.font);
+  const [typeFilterTextColor, setTypeFilterTextColor] = useState(
+    COLORS.lightFont
+  );
+
+  const [classFilterText, setClassFilterText] = useState("Class");
+  const [classFilterColor, setClassFilterColor] = useState(
+    COLORS["all"].default
+  );
 
   const navigation = useNavigation();
 
+  // Render type modal filters
   const renderTypeFilters = (type) => {
     const typeFilterText = type === "all" ? "Types" : type;
     const fontColor =
-      type === "dark" ||
-      type === "dragon" ||
-      type === "fighting" ||
-      type === "ghost" ||
-      type === "ground" ||
-      type === "poison" ||
-      type === "steel" ||
-      type === "water"
-        ? COLORS.lightFont
-        : COLORS.font;
+      type === "electric" || type === "fairy" || type === "ice"
+        ? COLORS.font
+        : COLORS.lightFont;
 
     return (
+      // Modal Button
       <TouchableOpacity
         onPress={() => {
           onTypeFilter(type);
@@ -57,6 +61,40 @@ const MovesHeader = ({ onTypeFilter }) => {
     );
   };
 
+  // Render class modal filters
+  const renderClassFilters = (moveClass) => {
+    const classFilterText = moveClass === "all" ? "Classes" : moveClass;
+    const classModalText = moveClass === "all" ? "allClass" : moveClass;
+
+    return (
+      // Modal Button
+      <TouchableOpacity
+        onPress={() => {
+          onClassFilter(classModalText);
+          setClassModalVisible(false);
+          setClassFilterText(classFilterText);
+          setClassFilterColor(COLORS[classModalText]);
+        }}
+        style={{
+          ...styles.typeFilter,
+          backgroundColor: COLORS[classModalText],
+        }}
+        activeOpacity={0.7}
+      >
+        <Text
+          style={{
+            ...styles.typeName,
+            color: COLORS.lightFont,
+            height: 50,
+            textAlignVertical: "center",
+          }}
+        >
+          {moveClass}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <View style={{ ...styles.main, paddingBottom: 0 }}>
       <View style={{ flexDirection: "row", marginBottom: 6 }}>
@@ -64,6 +102,8 @@ const MovesHeader = ({ onTypeFilter }) => {
         <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
           <Entypo name="menu" size={36} color={COLORS.font} />
         </TouchableOpacity>
+        {/* END Drawer Menu */}
+
         <Text style={styles.headerTitle}>Moves</Text>
       </View>
 
@@ -79,6 +119,7 @@ const MovesHeader = ({ onTypeFilter }) => {
           style={{
             ...styles.filterButton,
             backgroundColor: typeFilterColor,
+            marginRight: 6,
           }}
           onPress={() => setTypeModalVisible(true)}
         >
@@ -93,6 +134,26 @@ const MovesHeader = ({ onTypeFilter }) => {
           </Text>
         </TouchableOpacity>
         {/* END Type Filter */}
+
+        {/* Class Filter */}
+        <TouchableOpacity
+          style={{
+            ...styles.filterButton,
+            backgroundColor: classFilterColor,
+          }}
+          onPress={() => setClassModalVisible(true)}
+        >
+          <Text
+            style={{
+              textTransform: "capitalize",
+              fontFamily: "NunitoBold",
+              color: COLORS.lightFont,
+            }}
+          >
+            {classFilterText}
+          </Text>
+        </TouchableOpacity>
+        {/* END Class Filter */}
       </View>
       {/* END FILTERS */}
 
@@ -167,6 +228,37 @@ const MovesHeader = ({ onTypeFilter }) => {
         </View>
       </Modal>
       {/* END Type Modal */}
+
+      {/* Class Modal */}
+      <Modal
+        isVisible={classModalVisible}
+        deviceWidth={Dimensions.deviceWidth}
+        onBackButtonPress={() => setClassModalVisible(false)}
+        onBackdropPress={() => setClassModalVisible(false)}
+        hideModalContentWhileAnimating
+        backdropTransitionOutTiming={0}
+        style={{
+          margin: 0,
+          justifyContent: "flex-end",
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: "white",
+            borderTopLeftRadius: 12,
+            borderTopRightRadius: 12,
+            overflow: "hidden",
+          }}
+        >
+          <FlatList
+            data={["all", "physical", "special", "status"]}
+            renderItem={({ item }) => renderClassFilters(item)}
+            keyExtractor={(item, index) => index}
+            style={{ padding: 3 }}
+          />
+        </View>
+      </Modal>
+      {/* END Class Modal */}
     </View>
   );
 };

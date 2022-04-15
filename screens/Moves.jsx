@@ -47,6 +47,7 @@ const Moves = () => {
   const [loading, setLoading] = useState(true);
 
   const [filterType, setFilterType] = useState("all");
+  const [filterClass, setFilterClass] = useState("allClass");
 
   useEffect(() => {
     // Fetch move data
@@ -73,20 +74,22 @@ const Moves = () => {
     fetchMoveData();
   }, []);
 
+  // Update filters when changed
+  useEffect(() => {
+    applyFilters();
+  }, [filterType, filterClass]);
+
+  // Update class filter (passed to MovesHeader)
+  const changeClassFilter = (moveClass) => {
+    if (moveClass === filterClass) return;
+
+    setFilterClass(moveClass);
+  };
+
   // Update type filter (passed to Header)
   const changeTypeFilter = (type) => {
     if (type === filterType) return;
 
-    if (type === "all") {
-      setFilterType(type);
-      setMovesList(movesData);
-      return;
-    }
-
-    const filteredList = movesData.filter(
-      (item) => item.pokemon_v2_type.name === type
-    );
-    setMovesList(filteredList);
     setFilterType(type);
   };
 
@@ -95,28 +98,22 @@ const Moves = () => {
     let typeListToFilter;
     // Type filter
     if (filterType === "all") {
-      typeListToFilter = pokemonList;
+      typeListToFilter = movesData;
     } else {
-      typeListToFilter = pokemonList.filter((item) => {
-        const types = item.pokemon_v2_pokemons[0].pokemon_v2_pokemontypes;
-
-        return (
-          types[0].pokemon_v2_type.name === filterType ||
-          types[1]?.pokemon_v2_type.name === filterType
-        );
-      });
+      typeListToFilter = movesData.filter(
+        (item) => item.pokemon_v2_type.name === filterType
+      );
     }
 
-    // Generation filter
-    if (filterGen === "allGen") {
-      setPokemonData(typeListToFilter);
+    // Class filter
+    if (filterClass === "allClass") {
+      setMovesList(typeListToFilter);
     } else {
-      const genListFiltered = typeListToFilter.filter(
-        (item) =>
-          genNameToAPIName[filterGen] === item.pokemon_v2_generation.name
+      const classListFiltered = typeListToFilter.filter(
+        (item) => filterClass === item.pokemon_v2_movedamageclass.name
       );
 
-      setPokemonData(genListFiltered);
+      setMovesList(classListFiltered);
     }
   };
 
@@ -143,13 +140,16 @@ const Moves = () => {
         backgroundColor="transparent"
         barStyle="dark-content"
       />
-      <MovesHeader onTypeFilter={changeTypeFilter} />
+      <MovesHeader
+        onTypeFilter={changeTypeFilter}
+        onClassFilter={changeClassFilter}
+      />
       <FlatList
         data={movesList}
         renderItem={createListItem}
         keyExtractor={(item) => item.name}
         // Optimize flatlist (?)
-        initialNumToRender={20}
+        initialNumToRender={10}
         maxToRenderPerBatch={25}
         windowSize={10}
         contentContainerStyle={{ paddingBottom: 175 }}

@@ -16,6 +16,7 @@ export const COLORS = {
   gen7: "#966fd6",
   gen8: "#667182",
   // Move Type colors
+  allClass: "#b8b8b8",
   physical: "#c23700",
   special: "#007ea8",
   status: "#911f5a",

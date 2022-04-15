@@ -22,6 +22,12 @@ const ListItem = ({ data, type }) => {
     primaryObj.pokemon_v2_type.name,
     secondaryObj?.pokemon_v2_type.name,
   ];
+  const fontColor =
+    primaryType === "dark" ||
+    primaryType === "dragon" ||
+    primaryType === "ghost"
+      ? COLORS.lightFont
+      : COLORS.font;
 
   // Handle pressing of list item
   const handleOnPress = () => {
@@ -93,8 +99,12 @@ const ListItem = ({ data, type }) => {
         <View style={{ flex: 1 }}>
           {/* ID# + Name + Type Icons */}
           <View style={styles.nameContainer}>
-            <Text style={styles.id}>#{("00" + data.id).slice(-3)}</Text>
-            <Text style={styles.name}>{data.name}</Text>
+            <Text style={{ ...styles.id, color: fontColor }}>
+              #{("00" + data.id).slice(-3)}
+            </Text>
+            <Text style={{ ...styles.name, color: fontColor }}>
+              {data.name}
+            </Text>
             {/* Primary type icon */}
             <Image
               resizeMode="contain"
