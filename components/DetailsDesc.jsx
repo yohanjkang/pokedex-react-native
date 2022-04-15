@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   descriptionText: {
-    fontFamily: "NunitoRegular",
+    fontFamily: "NunitoBold",
     color: COLORS.font,
     padding: 10,
     borderWidth: 1,

@@ -10,6 +10,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@react-navigation/drawer": "^6.4.1",
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/stack": "^6.1.1",
     "expo": "~44.0.0",
@@ -26,7 +27,8 @@
     "react-native-super-grid": "^4.2.0",
     "react-native-tab-view": "^3.1.1",
     "react-native-web": "0.17.1",
-    "recyclerlistview": "^3.0.5"
+    "recyclerlistview": "^3.0.5",
+    "react-native-reanimated": "~2.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

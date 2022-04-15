@@ -3,6 +3,8 @@ export const COLORS = {
   font: "#4f4f4f",
   lightFont: "#fff",
   backgroundDefault: "#fafafa",
+  // backgroundAlt: "#f0dbdb",
+  backgroundAlt: "#cff4ff",
   // Generation colors
   allGen: "#b8b8b8",
   gen1: "#e7625f",
@@ -13,6 +15,10 @@ export const COLORS = {
   gen6: "#6094ac",
   gen7: "#966fd6",
   gen8: "#667182",
+  // Move Type colors
+  physical: "#c23700",
+  special: "#007ea8",
+  status: "#911f5a",
   // Type colors
   all: {
     default: "#b8b8b8",
@@ -56,7 +62,6 @@ export const COLORS = {
   grass: {
     default: "#8bc993",
     light: "#abd4b1",
-    extraLight: "#cae8ce",
   },
   ground: {
     default: "#e68c5e",

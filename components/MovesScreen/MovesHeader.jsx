@@ -1,11 +1,10 @@
 import {
   StyleSheet,
-  View,
   Text,
+  View,
   Image,
-  TextInput,
-  Dimensions,
   FlatList,
+  Dimensions,
   TouchableOpacity,
 } from "react-native";
 import React, { useState } from "react";
@@ -13,53 +12,16 @@ import Modal from "react-native-modal";
 import { useNavigation } from "@react-navigation/native";
 import { Entypo } from "@expo/vector-icons";
 
-import { typeNames } from "./Utils";
-import { COLORS } from "../constants/colors";
-import { ICONS } from "../constants/icons";
-import searchIcon from "../assets/misc_icons/search.png";
-import { headerStyles } from "./styles";
+import { typeNames } from "../Utils";
+import { COLORS } from "../../constants/colors";
+import { ICONS } from "../../constants/icons";
+import { headerStyles } from "../styles";
 
-const genNames = [
-  "All",
-  "Generation I",
-  "Generation II",
-  "Generation III",
-  "Generation IV",
-  "Generation V",
-  "Generation VI",
-  "Generation VII",
-  "Generation VIII",
-];
-
-const genNameToColor = {
-  allGen: genNames[0],
-  gen1: genNames[1],
-  gen2: genNames[2],
-  gen3: genNames[3],
-  gen4: genNames[4],
-  gen5: genNames[5],
-  gen6: genNames[6],
-  gen7: genNames[7],
-  gen8: genNames[8],
-};
-
-// Functions
-// Return object key from value
-const getKeyByValue = (object, value) =>
-  Object.keys(object).find((key) => object[key] === value);
-
-// HEADER
-const Header = ({ onSearch, onTypeFilter, onGenFilter }) => {
+const MovesHeader = ({ onTypeFilter }) => {
   const [typeModalVisible, setTypeModalVisible] = useState(false);
-  const [genModalVisible, setGenModalVisible] = useState(false);
-
   const [typeFilterText, setTypeFilterText] = useState("Types");
-  const [typeFilterTextColor, setTypeFilterTextColor] = useState(COLORS.font);
   const [typeFilterColor, setTypeFilterColor] = useState(COLORS["all"].default);
-
-  const [genFilterText, setGenFilterText] = useState("Generation");
-  const [genFilterTextColor, setGenFilterTextColor] = useState(COLORS.font);
-  const [genFilterColor, setGenFilterColor] = useState(COLORS["allGen"]);
+  const [typeFilterTextColor, setTypeFilterTextColor] = useState(COLORS.font);
 
   const navigation = useNavigation();
 
@@ -95,60 +57,21 @@ const Header = ({ onSearch, onTypeFilter, onGenFilter }) => {
     );
   };
 
-  const renderGenFilters = (gen) => {
-    const genFilterText = gen === "All" ? "Generation" : gen;
-    const textColor =
-      gen === "Generation I" ||
-      gen === "Generation V" ||
-      gen === "Generation VI" ||
-      gen === "Generation VII" ||
-      gen === "Generation VIII"
-        ? COLORS.lightFont
-        : COLORS.font;
-
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          onGenFilter(getKeyByValue(genNameToColor, gen));
-          setGenModalVisible(false);
-          setGenFilterText(genFilterText);
-          setGenFilterTextColor(textColor);
-          setGenFilterColor(COLORS[getKeyByValue(genNameToColor, gen)]);
-        }}
-        style={{
-          ...styles.typeFilter,
-          height: 50,
-          backgroundColor: COLORS[getKeyByValue(genNameToColor, gen)],
-        }}
-        activeOpacity={0.7}
-      >
-        <Text
-          style={{
-            ...styles.typeName,
-            color: textColor,
-            textTransform: "none",
-          }}
-        >
-          {gen}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
-
   return (
-    <View style={styles.main}>
+    <View style={{ ...styles.main, paddingBottom: 0 }}>
       <View style={{ flexDirection: "row", marginBottom: 6 }}>
         {/* Drawer Menu */}
         <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
           <Entypo name="menu" size={36} color={COLORS.font} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Pokédex</Text>
+        <Text style={styles.headerTitle}>Moves</Text>
       </View>
-      {/* Filters */}
+
+      {/* FILTERS */}
       <View
         style={{
           flexDirection: "row",
-          marginBottom: 12,
+          height: 26,
         }}
       >
         {/* Type Filter */}
@@ -156,7 +79,6 @@ const Header = ({ onSearch, onTypeFilter, onGenFilter }) => {
           style={{
             ...styles.filterButton,
             backgroundColor: typeFilterColor,
-            marginRight: 6,
           }}
           onPress={() => setTypeModalVisible(true)}
         >
@@ -171,27 +93,17 @@ const Header = ({ onSearch, onTypeFilter, onGenFilter }) => {
           </Text>
         </TouchableOpacity>
         {/* END Type Filter */}
-
-        {/* Gen Filter */}
-        <TouchableOpacity
-          onPress={() => setGenModalVisible(true)}
-          style={{
-            ...styles.filterButton,
-            backgroundColor: genFilterColor,
-          }}
-        >
-          <Text
-            style={{
-              fontFamily: "NunitoBold",
-              color: genFilterTextColor,
-            }}
-          >
-            {genFilterText}
-          </Text>
-        </TouchableOpacity>
-        {/* END Gen Filter */}
       </View>
-      {/* END Filters */}
+      {/* END FILTERS */}
+
+      {/* COLUMN NAMES */}
+      <View style={styles.moveInfoContainer}>
+        <Text style={{ ...styles.moveInfo, width: "55%" }}>Name</Text>
+        <Text style={styles.moveInfo}>Power</Text>
+        <Text style={styles.moveInfo}>Acc.</Text>
+        <Text style={styles.moveInfo}>PP</Text>
+      </View>
+      {/* END COLUMN NAMES */}
 
       {/* Type Modal */}
       <Modal
@@ -255,65 +167,32 @@ const Header = ({ onSearch, onTypeFilter, onGenFilter }) => {
         </View>
       </Modal>
       {/* END Type Modal */}
-
-      {/* Gen Modal */}
-      <Modal
-        isVisible={genModalVisible}
-        deviceWidth={Dimensions.deviceWidth}
-        onBackButtonPress={() => setGenModalVisible(false)}
-        onBackdropPress={() => setGenModalVisible(false)}
-        hideModalContentWhileAnimating
-        backdropTransitionOutTiming={0}
-        style={{
-          margin: 0,
-          justifyContent: "flex-end",
-        }}
-      >
-        <View
-          style={{
-            backgroundColor: "white",
-            borderTopLeftRadius: 12,
-            borderTopRightRadius: 12,
-            overflow: "hidden",
-          }}
-        >
-          <FlatList
-            data={genNames}
-            renderItem={({ item }) => renderGenFilters(item)}
-            keyExtractor={(item, index) => index}
-            style={{ padding: 3 }}
-          />
-        </View>
-      </Modal>
-      {/* END Gen Modal */}
-
-      {/* Searchbar */}
-      <View style={styles.searchBar}>
-        <Image
-          source={searchIcon}
-          resizeMode="contain"
-          style={{ width: 20, height: 20, marginHorizontal: 10 }}
-        />
-        <TextInput
-          placeholder="Search a Pokémon"
-          placeholderTextColor="#fff"
-          style={{ flex: 1, color: "white" }}
-          onChangeText={onSearch}
-        />
-      </View>
-      {/* END Searchbar */}
     </View>
   );
 };
+
+export default MovesHeader;
 
 const styles = StyleSheet.create({
   filterButton: headerStyles.filterButton,
   headerTitle: headerStyles.headerTitle,
   main: headerStyles.main,
+  moveInfo: {
+    width: "15%",
+    textAlign: "center",
+    color: COLORS.font,
+    fontFamily: "NunitoBold",
+  },
+  moveInfoContainer: {
+    flexDirection: "row",
+    backgroundColor: COLORS.backgroundAlt,
+    marginHorizontal: -12,
+    marginTop: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 24,
+  },
   searchBar: headerStyles.searchBar,
   typeFilter: headerStyles.typeFilter,
   typeIcon: headerStyles.typeIcon,
   typeName: headerStyles.typeName,
 });
-
-export default Header;
